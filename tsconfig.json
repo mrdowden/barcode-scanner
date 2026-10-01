@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "public",
+    "target": "es2020",
+    "lib": [ "ES2020", "DOM" ],
+    "types": [
+      "emscripten"
+    ],
+    "sourceMap": true
+  },
+  "include": [ "src/**/*" ],
+  "watchOptions": {
+    "watchDirectory": "usefsevents"
+  }
+}

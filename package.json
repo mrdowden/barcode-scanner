@@ -1,0 +1,15 @@
+{
+	"scripts": {
+		"build": "tsc",
+		"start": "http-server public",
+		"watch": "tsc --watch"
+	},
+	"devDependencies": {
+		"@types/emscripten": "^1.41.6",
+		"http-server": "^14.1.1",
+		"typescript": "^7.0.2"
+	},
+	"dependencies": {
+		"barcode-detector": "^3.2.2"
+	}
+}
