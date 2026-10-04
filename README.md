@@ -1,5 +1,8 @@
 # Barcode Scanner
 
+Copyright 2026 Michael Dowden
+Subject to MIT License
+
 ## Development
 
 Setup: `pnpm install`

@@ -5,4 +5,5 @@ export default defineConfig({
   plugins: [
     mkcert(),  // ← Enables HTTPS locally
   ],
+  base: '/barcode-scanner/',
 })
