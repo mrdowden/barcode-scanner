@@ -303,6 +303,10 @@ canvas {
   left: -10000;
 }
 
+.debug {
+  text-align: left;
+}
+
 /* Navigation */
 
 #launcher:has(~ #scan:target),
@@ -367,6 +371,7 @@ canvas {
     margin: 1rem 0;
     width: calc((100vw - 2rem) * 0.85);
     text-align: left;
+    overflow-wrap: anywhere;
   }
   a {
     display: block;
