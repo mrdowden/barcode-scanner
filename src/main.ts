@@ -2,6 +2,7 @@ import './style.css'
 import { Scanner } from './capture'
 import scanImg from './assets/scan.svg'
 import uploadImg from './assets/upload.svg'
+import imagesImg from './assets/images.svg'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <section id="demo">
@@ -14,6 +15,11 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     <div class="selectDevices">Camera Selection: <select id="videoDevices"></select></div>
   </div>
   <div id="upload">
+    <label class="button-8">
+      <input type="file" accept="image/*">
+      <img src="${imagesImg}" alt="Select Image">
+    </label>
+    <img class="preview">
   </div>
   <div id="results">
     <div class="images">
@@ -32,6 +38,23 @@ const scanner = new Scanner()
 
 await scanner.initialize()
 scanner.printSupportedFormats()
+
+const upload = document.querySelector('input[type=file]') as HTMLInputElement
+if(upload && upload.files instanceof FileList) {
+  upload.addEventListener('change', (event) => {
+    if(upload.files?.length) {
+      console.log('Change Event', event)
+      const url = URL.createObjectURL(upload.files[0])
+      const preview = document.querySelector('img.preview') as HTMLImageElement
+      preview.src = url
+      preview.onload = () => {
+        setTimeout(async () => {
+          await scanner.checkImage(preview)
+        }, 500)
+      }
+    }
+  })
+}
 
 let loaded = false
 

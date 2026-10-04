@@ -99,6 +99,24 @@ export class Scanner {
     return codes.length > 0 ? codes : false
   }
 
+  async checkImage(img: HTMLImageElement) {
+    const canvas = document.createElement('canvas')
+    canvas.width = WIDTH
+    canvas.height = HEIGHT
+    const context = canvas.getContext('2d')
+    if(!context) throw new Error('Canvas 2D context not available')
+
+    context.drawImage(img, 0, 0, canvas.width, canvas.height)
+    const found = await this.scan(context.getImageData(0, 0, WIDTH, HEIGHT))
+    if(found) {
+      console.log('Found Barcode', found)
+      this.saveResults(found, canvas)
+    } else {
+      console.warn('No Barcode Found')
+      debug('No barcode found')
+    }
+  }
+
   // Select a specific Camera device
   async selectDevice(selectedDeviceId: string | null): Promise<string> {
     console.log('Selecting Device', selectedDeviceId)

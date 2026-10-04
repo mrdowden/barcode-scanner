@@ -359,6 +359,35 @@ label:has(.showDebug:checked) + .debug {
   }
 }
 
+#upload {
+  margin: 2rem 1rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 1rem;
+  input[type=file] {
+    visibility: hidden;
+    position: absolute;
+    left: -10000;
+  }
+  label {
+    display: inline-block;
+    width: calc((100vw - 3rem - 20px) * 0.3);
+    height: calc((100vw - 3rem - 20px) * 0.3);
+    img {
+      margin: 20px 10px;
+      width: 80%;
+      height: 80%;
+    }
+  }
+  & > img {
+    border-radius: 1rem;
+    outline: 1px solid #ccc;
+    width: calc((100vw - 3rem - 20px) * 0.3);
+    height: calc((100vw - 3rem - 20px) * 0.3);
+  }
+}
+
 #results {
   margin: 2rem 1rem;
   .images {
@@ -368,6 +397,7 @@ label:has(.showDebug:checked) + .debug {
     gap: 1rem;
     img {
       border-radius: 1rem;
+      outline: 1px solid #ccc;
     }
     .snapshot {
       width: calc((100vw - 3rem) * 0.85 / 7 * 4);
