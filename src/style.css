@@ -294,3 +294,127 @@ code {
     border-right-color: var(--border);
   }
 }
+
+/* Custom Styles for Scanner */
+
+canvas {
+  visibility: hidden;
+  position: absolute;
+  left: -10000;
+}
+
+/* Navigation */
+
+#launcher:has(~ #scan:target),
+#launcher:has(~ #upload:target),
+#launcher:has(~ #results:target) {
+  display: none;
+}
+
+#scan:not(:target),
+#upload:not(:target),
+#results:not(:target) {
+  display: none;
+}
+
+/* Section Styles */
+
+#launcher {
+  margin: 2rem 1rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 1rem;
+  img {
+    padding: 10px;
+    width: calc((100vw - 3rem - 20px) * 0.3);
+    height: calc((100vw - 3rem - 20px) * 0.3);
+  }
+}
+
+#scan {
+  margin: 2rem 1rem;
+  video {
+    width: calc((100vw - 2rem) * 0.85);
+    height: calc((100vw - 2rem) * 0.85 * 3 / 4);
+    border-radius: 1rem;
+  }
+  .selectDevices:has(select:empty) {
+    display: none;
+  }
+}
+
+#results {
+  margin: 2rem 1rem;
+  .images {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 1rem;
+    img {
+      border-radius: 1rem;
+    }
+    .snapshot {
+      width: calc((100vw - 3rem) * 0.85 / 7 * 4);
+      height: calc((100vw - 3rem) * 0.85 / 7 * 3);
+    }
+    .barcode {
+      width: calc((100vw - 3rem) * 0.85 / 7 * 3);
+      height: calc((100vw - 3rem) * 0.85 / 7 * 3);
+    }
+  }
+  code {
+    margin: 1rem 0;
+    width: calc((100vw - 2rem) * 0.85);
+    text-align: left;
+  }
+  a {
+    display: block;
+    margin: 1rem auto;
+    width: calc((100vw - 3rem) * 0.85);
+  }
+}
+
+/* Button Style */
+
+.button-8 {
+  background-color: #e1ecf4;
+  border-radius: 1rem;
+  border: 1px solid #7aa7c7;
+  box-shadow: rgba(255, 255, 255, .7) 0 1px 0 0 inset;
+  box-sizing: border-box;
+  color: #39739d;
+  cursor: pointer;
+  display: inline-block;
+  font-family: -apple-system,system-ui,"Segoe UI","Liberation Sans",sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.15385;
+  margin: 0;
+  outline: none;
+  padding: 8px .8em;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+
+.button-8:hover,
+.button-8:focus {
+  background-color: #b3d3ea;
+  color: #2c5777;
+}
+
+.button-8:focus {
+  box-shadow: 0 0 0 4px rgba(0, 149, 255, .15);
+}
+
+.button-8:active {
+  background-color: #a0c7e4;
+  box-shadow: none;
+  color: #2c5777;
+}

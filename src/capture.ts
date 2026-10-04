@@ -26,5 +26,5 @@ export async function scan(img: ImageData) {
   })
   const codes = await detector.detect(img)
   codes.forEach(barcode => console.log(barcode))
-  return codes.length > 0
+  return codes.length > 0 ? codes : false
 }
