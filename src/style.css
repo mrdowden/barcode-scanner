@@ -372,10 +372,12 @@ label:has(.showDebug:checked) + .debug {
     .snapshot {
       width: calc((100vw - 3rem) * 0.85 / 7 * 4);
       height: calc((100vw - 3rem) * 0.85 / 7 * 3);
+      object-fit: contain;
     }
     .barcode {
       width: calc((100vw - 3rem) * 0.85 / 7 * 3);
       height: calc((100vw - 3rem) * 0.85 / 7 * 3);
+      object-fit: contain;
     }
   }
   code {

@@ -72,19 +72,20 @@ async function setupScanner() {
 
   scanner.setupMonitor(video)
 
-  const devices = await navigator.mediaDevices.enumerateDevices()
-  const videoDevices = devices.filter(device => device.kind === 'videoinput')
-  let selectedDeviceId = videoDevices[0].deviceId
+  const cameraSelectElem = document.getElementById('videoDevices') as HTMLSelectElement
+  if(!cameraSelectElem) {
+    throw new Error('Must have a <select> element with an ID of "videoDevices".')
+  }
+
+  const videoDevices = await scanner.listCameras()
+  let selectedDeviceId: string | null = null
 
   if(videoDevices.length > 1) {
     console.log('Loading Devices')
-    const selectCamera = document.getElementById('videoDevices') as HTMLSelectElement
-    if(!selectCamera) {
-      throw new Error('Must have a <select> element with an ID of "videoDevices".')
-    }
-    selectCamera.onchange = async () => {
-      selectedDeviceId = selectCamera.options[selectCamera.selectedIndex].value
-      video.srcObject = await scanner.selectDevice(selectedDeviceId)
+    cameraSelectElem.onchange = async () => {
+      selectedDeviceId = cameraSelectElem.options[cameraSelectElem.selectedIndex].value
+      await scanner.selectDevice(selectedDeviceId)
+      video.srcObject = scanner.getStream()
     }
     videoDevices.forEach(device => {
       const option = document.createElement('option')
@@ -92,8 +93,10 @@ async function setupScanner() {
       option.text = device.label
       if(device.deviceId === selectedDeviceId) option.selected = true
       console.log('Adding Option', option.value, option.text)
-      selectCamera?.appendChild(option)
+      cameraSelectElem?.appendChild(option)
     })
   }
-  video.srcObject = await scanner.selectDevice(selectedDeviceId)
+  selectedDeviceId = await scanner.selectDevice(selectedDeviceId)
+  cameraSelectElem.value = selectedDeviceId
+  video.srcObject = scanner.getStream()
 }
