@@ -1,9 +1,10 @@
 {
-  "name": "image-capture",
+  "name": "barcode-scanner",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "start": "pnpm run dev",
     "dev": "vite --host --port=8443",
     "build": "tsc && vite build",
     "preview": "vite preview"
