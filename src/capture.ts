@@ -1,19 +1,11 @@
-import 'barcode-detector/polyfill'
-
-export async function startScanner(img: HTMLImageElement) {
-  const detector = new BarcodeDetector({
-    formats: ['qr_code']
-  })
-  const codes = await detector.detect(img)
-  codes.forEach(barcode => console.log(barcode))
-}
+import { BarcodeDetector as BarcodeDetectorPonyfill } from "barcode-detector/ponyfill";
 
 const WIDTH = 640
 const HEIGHT = 480
 export class Scanner {
   private readonly cameraConstraints: MediaStreamConstraints = {
     video: {
-      facingMode: 'environment',
+      facingMode: { ideal: 'environment' },
       width: WIDTH,
       height: HEIGHT,
       aspectRatio: WIDTH / HEIGHT,
@@ -21,28 +13,31 @@ export class Scanner {
     }
   }
 
-  private detector: BarcodeDetector = new BarcodeDetector({
-    formats: ['any']
-    // formats: ['qr_code']
-  })
+  private detector: BarcodeDetector = {} as BarcodeDetector
 
-  private debug(text: string) {
-    const out = document.querySelector('.debug')
-    if(out) out.innerHTML += text + '\n'
-  }
-
-  compatibilityCheck() {
+  async initialize() {
     if(!('BarcodeDetector' in globalThis)) {
-      alert('No Barcode Detector')
+      debug('No Barcode Detector - importing polyfill')
+      const g = globalThis as any
+      g.BarcodeDetector = BarcodeDetectorPonyfill
+    } else {
+      debug('Found BarcodeDetector:')
+      debug(`Constructor - ${BarcodeDetector?.constructor}`)
+      debug(`Supported Formats - ${BarcodeDetector?.getSupportedFormats}`)
+      debug(JSON.stringify(BarcodeDetector))
     }
+    this.detector = new BarcodeDetector({
+      // formats: ['qr_code']
+    })
+    debug(`Instance - ${this.detector}`)
   }
-  
+
   printSupportedFormats() {
-    this.debug('Supported Barcode Formats:')
+    debug('Supported Barcode Formats:')
     BarcodeDetector.getSupportedFormats().then((supportedFormats) => {
       supportedFormats.forEach((format) => {
         console.log(format)
-        this.debug('\t' + format)
+        debug('\t' + format)
       })
     })
   }
@@ -104,7 +99,7 @@ export class Scanner {
     const codes = await this.detector.detect(img)
     codes.forEach(barcode => {
       console.log(barcode)
-      this.debug(`${barcode.format}: ${barcode.rawValue}`)
+      debug(`${barcode.format}: ${barcode.rawValue}`)
     })
     return codes.length > 0 ? codes : false
   }
@@ -112,22 +107,27 @@ export class Scanner {
   // Select a specific Camera device
   async selectDevice(selectedDeviceId: string): Promise<MediaStream> {
     console.log('Selecting Device', selectedDeviceId)
-    this.debug(`Selecting Device: ${selectedDeviceId}`)
-    const stream = await navigator.mediaDevices.getUserMedia({
-      ...this.cameraConstraints,
-      video: { deviceId: { exact: selectedDeviceId } }
-    })
+    debug(`Selecting Device: ${selectedDeviceId}`)
+    const _constraints = this.cameraConstraints
+    const _video = _constraints.video as MediaTrackConstraints
+    _video.deviceId = { exact: selectedDeviceId }
+    const stream = await navigator.mediaDevices.getUserMedia(_constraints)
     // stream.onremovetrack = () => { console.log('Stream Ended') }
     const tracks = stream.getVideoTracks()
     console.log('Using video device', tracks.length, tracks[0].id, tracks[0].label)
-    this.debug(`Using video device with ${tracks.length} tracks`)
+    debug(`Using video device with ${tracks.length} tracks`)
     tracks.forEach(track => {
-      this.debug('\t' + track.kind + ': ' + track.label)
+      debug('\t' + track.kind + ': ' + track.label)
     })
     const track = tracks[0]
     console.log('Capabilities', track.getCapabilities())
-    this.debug('Track Capabilities:')
-    this.debug(JSON.stringify(track.getCapabilities()))
+    debug('Track Capabilities:')
+    debug(JSON.stringify(track.getCapabilities()))
     return stream
   }
+}
+
+function debug(text: string) {
+  const out = document.querySelector('.debug')
+  if(out) out.innerHTML += text + '\n'
 }

@@ -305,6 +305,17 @@ canvas {
 
 .debug {
   text-align: left;
+  margin: 1rem 10vw;
+  display: none;
+}
+
+label {
+  display: block;
+  text-align: left;
+  margin: 1rem 10vw;
+}
+label:has(.showDebug:checked) + .debug {
+  display: block;
 }
 
 /* Navigation */

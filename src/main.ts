@@ -23,15 +23,29 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     <code></code>
     <a class="button-8" href="/">Reset</a>
   </div>
+  <label><input type="checkbox" class="showDebug"> Debug?</label>
   <pre class="debug"></pre>
 </section>
 `
 
 const scanner = new Scanner()
 
-scanner.compatibilityCheck()
+await scanner.initialize()
 scanner.printSupportedFormats()
 
+let loaded = false
+
+// Handle Reload
+window.onload = async () => {
+  console.log('location.hash', location.hash)
+  if(!loaded && location.hash === '#scan') {
+      console.log('SCAN - Refresh')
+      await setupScanner()
+      loaded = true
+  }
+}
+
+// Handle Navigation
 navigation.addEventListener('navigate', async event => {
   console.log('NAVIGATE', event)
   if(!event.canIntercept || event.downloadRequest !== null) {
@@ -42,8 +56,9 @@ navigation.addEventListener('navigate', async event => {
   console.log('URL', url)
   switch(url.hash) {
     case '#scan':
-      console.log('SCAN')
+      console.log('SCAN - Navigate')
       await setupScanner()
+      loaded = true
       break;
   }
 })
