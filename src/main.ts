@@ -27,7 +27,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       <img class="barcode">
     </div>
     <code></code>
-    <a class="button-8" href="/">Reset</a>
+    <a class="button-8" href="#launcher">Reset</a>
   </div>
   <label><input type="checkbox" class="showDebug"> Debug?</label>
   <pre class="debug"></pre>
