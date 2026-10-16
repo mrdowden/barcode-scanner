@@ -14,11 +14,7 @@ export class Scanner {
   }
 
   private detector: BarcodeDetector = {} as BarcodeDetector
-  private selectedDevice: {
-    deviceId: string,
-    stream: MediaStream,
-    capabilities: MediaTrackCapabilities,
-  } | null = null
+  private selectedDevice: VideoDevice | null = null
 
   async initialize() {
     if(!('BarcodeDetector' in globalThis)) {
@@ -72,43 +68,46 @@ export class Scanner {
 
   setupMonitor(video: HTMLVideoElement) {
     // Canvas for behind-the-scenes tracking of camera
-    const canvas = document.createElement('canvas')
-    canvas.width = WIDTH
-    canvas.height = HEIGHT
+    const canvas = Object.assign(document.createElement('canvas'), {
+      width: WIDTH,
+      height: HEIGHT,
+    })
     const context = canvas.getContext('2d', { willReadFrequently: true })
     if(!context) throw new Error('Canvas 2D context not available')
 
-    const play = async () => {
+    const scan = async () => {
       context.drawImage(video, 0, 0, canvas.width, canvas.height)
-      const found = await this.scan(context.getImageData(0, 0, WIDTH, HEIGHT))
-      if(found) {
+      const found = await this.detect(context.getImageData(0, 0, WIDTH, HEIGHT))
+      if(found?.length) {
         clearInterval(handle)
         video.pause()
+        this.selectedDevice?.track.stop()
         this.saveResults(found, canvas)
       }
     }
-    const handle = setInterval(play, 1000/30)
+    const handle = setInterval(scan, 1000/30)
   }
 
-  private async scan(img: ImageData) {
+  private async detect(img: ImageData) {
     const codes = await this.detector.detect(img)
     codes.forEach(barcode => {
       console.log(barcode)
       debug(`${barcode.format}: ${barcode.rawValue}`)
     })
-    return codes.length > 0 ? codes : false
+    return codes.length > 0 ? codes : []
   }
 
   async checkImage(img: HTMLImageElement) {
-    const canvas = document.createElement('canvas')
-    canvas.width = WIDTH
-    canvas.height = HEIGHT
+    const canvas = Object.assign(document.createElement('canvas'), {
+      width: WIDTH,
+      height: HEIGHT,
+    })
     const context = canvas.getContext('2d')
     if(!context) throw new Error('Canvas 2D context not available')
 
     context.drawImage(img, 0, 0, canvas.width, canvas.height)
-    const found = await this.scan(context.getImageData(0, 0, WIDTH, HEIGHT))
-    if(found) {
+    const found = await this.detect(context.getImageData(0, 0, WIDTH, HEIGHT))
+    if(found.length) {
       console.log('Found Barcode', found)
       this.saveResults(found, canvas)
     } else {
@@ -118,7 +117,7 @@ export class Scanner {
   }
 
   // Select a specific Camera device
-  async selectDevice(selectedDeviceId: string | null): Promise<string> {
+  async selectDevice(selectedDeviceId?: string): Promise<VideoDevice> {
     console.log('Selecting Device', selectedDeviceId)
     debug(`Selecting Device: ${selectedDeviceId}`)
     const _constraints = this.cameraConstraints
@@ -133,33 +132,28 @@ export class Scanner {
     tracks.forEach(track => {
       debug('\t' + track.kind + ': ' + track.label)
     })
-    const track = tracks[0]
+    const [track] = stream.getVideoTracks()
     const capabilities = track.getCapabilities()
     console.log('Capabilities', capabilities)
     debug('Track Capabilities:')
     debug(JSON.stringify(capabilities))
     this.selectedDevice = {
-      deviceId: selectedDeviceId ?? capabilities.deviceId ?? '',
+      deviceId: capabilities.deviceId ?? '',
       stream: stream,
+      track: track,
       capabilities: capabilities,
     }
-    return this.selectedDevice.deviceId
-  }
-
-  getStream() {
-    if(!this.selectedDevice) throw new Error('No Device Selected')
-    return this.selectedDevice.stream
+    return this.selectedDevice
   }
 
   saveResults(results: DetectedBarcode[], canvas: HTMLCanvasElement) {
     console.log('Found Barcodes', results)
     const pre = document.querySelector('code')
     if(pre) {
-      results.forEach(code => {
-        pre.innerText += `[${code.format}] ${code.rawValue}`
-      })
+      pre.innerText = results.map(code => `[${code.format}] ${code.rawValue}`).join('\n')
     }
-    const imgSnapshot = document.querySelector('#results .snapshot') as HTMLImageElement
+    const imgSnapshot = 
+      document.querySelector('#results .snapshot') as HTMLImageElement
     imgSnapshot.src = canvas.toDataURL('image/webp')
 
     const imgBarcode = document.querySelector('#results .barcode') as HTMLImageElement
@@ -169,9 +163,10 @@ export class Scanner {
 
   extractCodeImage(barcode: DetectedBarcode, canvas: HTMLCanvasElement) {
     const params = barcode.boundingBox
-    const tempCanvas = document.createElement('canvas')
-    tempCanvas.width = params.width
-    tempCanvas.height = params.height
+    const tempCanvas = Object.assign(document.createElement('canvas'), {
+      width: params.width,
+      height: params.height,
+    })
     const tempCtx = tempCanvas.getContext('2d')
     if(!tempCtx) throw new Error()
     tempCtx.drawImage(canvas, params.left, params.top, params.width, params.height, 0, 0, params.width, params.height)
@@ -182,4 +177,11 @@ export class Scanner {
 function debug(text: string) {
   const out = document.querySelector('.debug')
   if(out) out.innerHTML += text + '\n'
+}
+
+export type VideoDevice = {
+  deviceId: string
+  stream: MediaStream
+  track: MediaStreamTrack
+  capabilities: MediaTrackCapabilities
 }

@@ -1,5 +1,5 @@
 import './style.css'
-import { Scanner } from './capture'
+import { Scanner, type VideoDevice } from './capture'
 import scanImg from './assets/scan.svg'
 import uploadImg from './assets/upload.svg'
 import imagesImg from './assets/images.svg'
@@ -50,7 +50,7 @@ if(upload && upload.files instanceof FileList) {
       preview.onload = () => {
         setTimeout(async () => {
           await scanner.checkImage(preview)
-        }, 500)
+        }, 1)
       }
     }
   })
@@ -93,33 +93,33 @@ async function setupScanner() {
   const video = document.querySelector('video')
   if(!video) throw new Error('Video element required for live preview')
 
-  scanner.setupMonitor(video)
-
   const cameraSelectElem = document.getElementById('videoDevices') as HTMLSelectElement
   if(!cameraSelectElem) {
     throw new Error('Must have a <select> element with an ID of "videoDevices".')
   }
 
   const videoDevices = await scanner.listCameras()
-  let selectedDeviceId: string | null = null
+  let selectedDevice: VideoDevice | null = await scanner.selectDevice()
 
   if(videoDevices.length > 1) {
     console.log('Loading Devices')
     cameraSelectElem.onchange = async () => {
-      selectedDeviceId = cameraSelectElem.options[cameraSelectElem.selectedIndex].value
-      await scanner.selectDevice(selectedDeviceId)
-      video.srcObject = scanner.getStream()
+      const deviceId = cameraSelectElem.options[cameraSelectElem.selectedIndex].value
+      selectedDevice = await scanner.selectDevice(deviceId)
+      video.srcObject = selectedDevice?.stream
     }
     videoDevices.forEach(device => {
-      const option = document.createElement('option')
-      option.value = device.deviceId
-      option.text = device.label
-      if(device.deviceId === selectedDeviceId) option.selected = true
+      const option = Object.assign(document.createElement('option'), {
+        value: device.deviceId,
+        text: device.label,
+        selected: device.deviceId === selectedDevice?.deviceId,
+      })
       console.log('Adding Option', option.value, option.text)
-      cameraSelectElem?.appendChild(option)
+      cameraSelectElem.appendChild(option)
     })
+    cameraSelectElem.value = selectedDevice?.deviceId
   }
-  selectedDeviceId = await scanner.selectDevice(selectedDeviceId)
-  cameraSelectElem.value = selectedDeviceId
-  video.srcObject = scanner.getStream()
+  video.srcObject = selectedDevice?.stream
+
+  scanner.setupMonitor(video)
 }
