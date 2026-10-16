@@ -15,11 +15,14 @@ Can also access on your local network using your computer's IP if port 8443 is o
 
 ## Resources
 
+- https://developer.mozilla.org/en-US/docs/Web/API/Permissions
+- https://developer.mozilla.org/en-US/docs/Web/API/MediaStream_Image_Capture_API
+- https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+- https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API
 - https://developer.mozilla.org/en-US/docs/Web/API/Barcode_Detection_API
 - https://developer.mozilla.org/en-US/docs/Web/API/BarcodeDetector
 - https://github.com/Sec-ant/barcode-detector
-- https://developer.mozilla.org/en-US/docs/Web/API/MediaStream_Image_Capture_API
-- https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+- https://developer.mozilla.org/en-US/docs/Web/API/File_API
 
 ## Credits
 
